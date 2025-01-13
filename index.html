@@ -1,0 +1,105 @@
+<html>
+
+<head>
+    <title>Demo Form</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <div id="error"></div>
+    <form id="form">
+        <table id="formtable">
+            <tr>
+                <th><label for="name">Name:</label></th>
+                <td><input type="text" id="name" name="name" required></td>
+            </tr>
+
+            <tr>
+                <th><label for="email">Email:</label></th>
+                <td><input type="email" id="email" name="email"></td>
+            </tr>
+
+            <tr>
+                <th><label for="gender">Gender:</label></th>
+                <td>
+                    <input type="radio" name="gender" id="male" value="male">
+                    <label for="male">Male</label>
+                    <input type="radio" name="gender" id="female" value="female">
+                    <label for="female">Female</label>
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for="hobbies">Hobbies:</label></th>
+                <td><input type="checkbox" id="travel" name="travel" value="Travel">
+                    <label for="travel"> Travelling</label><br>
+                    <input type="checkbox" id="reading" name="reading" value="Reading">
+                    <label for="reading"> Reading</label><br>
+                    <input type="checkbox" id="sports" name="sports" value="Sports">
+                    <label for="sports"> Sports</label><br>
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for="age">Age:</label></th>
+                <td><input type="number" id="age" name="age"></td>
+            </tr>
+
+            <tr>
+                <th><label for="state">State:</label></th>
+                <td>
+                    <select id="state">
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for="city">City:</label></th>
+                <td>
+                    <select id="city">
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for="submit">Action</label></th>
+                <td>
+                    <button type="button" id="save">Save</button>
+                    <button type="button" id="cancel" style="display: none;">Cancel</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div>
+        <input type="text" id="search" placeholder="Search by name">
+        <select id="sort">
+            <option value="">Sort By</option>
+            <option value="asc">Name Ascending</option>
+            <option value="desc">Name Descending</option>
+        </select>
+    </div>
+    
+
+    <table style="margin-top: 15px;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Gender</th>
+                <th>Hobbies</th>
+                <th>Age</th>
+                <th>State</th>
+                <th>City</th>
+                <th>Record Creation Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="dispdata">
+        </tbody>
+    </table>
+
+</body>
+
+</html>
