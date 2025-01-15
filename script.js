@@ -2,12 +2,43 @@ let arr = [];
 let isEditing = false;
 let editingIndex = null;
 
+const form = document.getElementById("form");
 const saveButton = document.getElementById("save");
 const cancelButton = document.getElementById("cancel");
 const searchInput = document.getElementById("search");
 const sortDropdown = document.getElementById("sort");
 const errorDiv = document.getElementById("error");
-saveButton.addEventListener("click", forSave);
+
+form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const name = formData.get("name").trim();
+    const email = formData.get("email").trim();
+    const gender = formData.get("gender");
+    const hobbies = formData.getAll("hobbies").join(", ");
+    const age = formData.get("age").trim();
+    const state = formData.get("state").trim();
+    const city = formData.get("city").trim();
+    const time = new Date().toLocaleString();
+
+    if (!validateForm({ name, email, gender, hobbies, age, state, city })) return;
+
+    const record = { name, email, gender, hobbies, age, state, city, time };
+
+    if (isEditing) {
+        arr[editingIndex] = record;
+        isEditing = false;
+        editingIndex = null;
+        saveButton.innerHTML = "Save";
+    } else {
+        arr.push(record);
+    }
+
+    updateTable();
+    resetForm();
+});
+
 cancelButton.addEventListener("click", resetForm);
 searchInput.addEventListener("input", forSearch);
 sortDropdown.addEventListener("change", forSort);
@@ -20,86 +51,43 @@ const states = {
 };
 
 const stateList = document.getElementById("state");
-stateList.innerHTML = '<option>Select a state</option>';
+stateList.innerHTML = '<option value="">Select a state</option>';
 
 Object.keys(states).forEach(state => {
     const option = document.createElement('option');
     option.value = state;
-    option.textContent = (state).toUpperCase();
+    option.textContent = state.toUpperCase();
     stateList.appendChild(option);
 });
 
-stateList.addEventListener('change', function () {
-    const selectedState = this.value;
-    const cities = states[selectedState];
-    const cityList = document.getElementById("city");
-    cityList.innerHTML = '<option>Select a city</option>';
+stateList.addEventListener('change', updateCity);
 
-    cities.forEach(city => {
+function updateCity() {
+    const selectedState = this.value;
+    const cityList = document.getElementById("city");
+    cityList.innerHTML = '<option value="">Select a city</option>';
+    states[selectedState].forEach(city => {
         const option = document.createElement('option');
         option.value = city.toLowerCase();
         option.textContent = city.toUpperCase();
         cityList.appendChild(option);
     });
-});
+};
 
-function getFormData() {
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const gender = document.querySelector('input[name="gender"]:checked')?.value;
-    const hobbies = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-    const age = document.getElementById("age").value.trim();
-    const state = document.getElementById("state").value.trim();
-    const city = document.getElementById("city").value.trim();
-    const time = new Date().toLocaleString();
-
-    return { name, email, gender, hobbies: hobbies.join(", "), age, state, city, time };
-}
-
-function validateForm() {
+function validateForm({ name, email, gender, hobbies, age, state, city }) {
     clearError();
-    const { name, email, gender, hobbies, age, state, city } = getFormData();
-
-    if (!name)
-        return showError("Please enter your Name.");
-
-    if (!email || !validateEmail(email))
-        return showError("Please enter your proper Email.");
-
-    if (!gender)
-        return showError("Please enter your Gender.");
-
-    if (!hobbies)
-        return showError("Please enter your hobbies.");
-
-    if (!age)
-        return showError("Please enter your Age.");
-
-    if (!state || !city)
-        return showError("Please enter your State and City.");
-
+    if (!name) return showError("Please enter your Name.");
+    if (!email || !validateEmail(email)) return showError("Please enter a valid Email.");
+    if (!gender) return showError("Please select your Gender.");
+    if (!hobbies) return showError("Please select at least one Hobby.");
+    if (!age) return showError("Please enter your Age.");
+    if (!state || !city) return showError("Please select your State and City.");
     return true;
 }
 
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-}
-
-function forSave() {
-    if (!validateForm()) return;
-
-    const formData = getFormData();
-    if (isEditing) {
-        arr[editingIndex] = formData;
-        isEditing = false;
-        editingIndex = null;
-        saveButton.innerHTML = "Save";
-    } else {
-        arr.push(formData);
-    }
-    updateTable();
-    resetForm();
 }
 
 function showError(message) {
@@ -114,7 +102,7 @@ function clearError() {
 }
 
 function resetForm() {
-    document.getElementById("form").reset();
+    form.reset();
     saveButton.innerHTML = "Save";
     cancelButton.style.display = "none";
     isEditing = false;
@@ -131,32 +119,18 @@ function updateTable() {
     });
 }
 
-function renderFilteredTable(filtered) {
-    const tbody = document.getElementById("dispdata");
-    tbody.innerHTML = "";
-
-    filtered.forEach((record, index) => {
-        const row = createRow(record, index);
-        tbody.appendChild(row);
-    });
-}
-
 function createRow(record, index) {
     const row = document.createElement("tr");
-
     Object.keys(record).forEach(key => {
         const cell = document.createElement("td");
         cell.textContent = record[key];
         row.appendChild(cell);
-
     });
-
     const actionCell = document.createElement("td");
     const editButton = createActionButton("Edit", () => forEdit(index));
     const deleteButton = createActionButton("Delete", () => forDelete(index));
     actionCell.append(editButton, deleteButton);
     row.appendChild(actionCell);
-
     return row;
 }
 
@@ -169,15 +143,16 @@ function createActionButton(text, action) {
 
 function forEdit(index) {
     const record = arr[index];
-    document.getElementById("name").value = record.name;
-    document.getElementById("email").value = record.email;
-    document.querySelector(`input[name="gender"][value="${record.gender}"]`).checked = true;
-    record.hobbies.split(", ").forEach(hobby => {
-        document.querySelector(`input[type="checkbox"][value="${hobby}"]`).checked = true;
-    });
-    document.getElementById("age").value = record.age;
-    document.getElementById("state").value = record.state;
-    document.getElementById("city").value = record.city;
+    for (const [key, value] of Object.entries(record)) {
+        const input = document.querySelector(`[name="${key}"]`);
+        if (input) {
+            if (input.type === "checkbox" || input.type === "radio") {
+                document.querySelector(`[name="${key}"][value="${value}"]`).checked = true;
+            } else {
+                input.value = value;
+            }
+        }
+    }
     saveButton.innerHTML = "Update";
     cancelButton.style.display = "inline";
     isEditing = true;
@@ -193,6 +168,15 @@ function forSearch() {
     const query = searchInput.value.toLowerCase();
     const filtered = arr.filter(record => record.name.toLowerCase().includes(query));
     renderFilteredTable(filtered);
+}
+
+function renderFilteredTable(filtered) {
+    const tbody = document.getElementById("dispdata");
+    tbody.innerHTML = "";
+    filtered.forEach((record, index) => {
+        const row = createRow(record, index);
+        tbody.appendChild(row);
+    });
 }
 
 function forSort() {
