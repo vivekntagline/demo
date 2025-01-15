@@ -13,13 +13,13 @@ form.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const formData = new FormData(form);
-    const name = formData.get("name").trim();
-    const email = formData.get("email").trim();
+    const name = formData.get("name");
+    const email = formData.get("email");
     const gender = formData.get("gender");
     const hobbies = formData.getAll("hobbies").join(", ");
-    const age = formData.get("age").trim();
-    const state = formData.get("state").trim();
-    const city = formData.get("city").trim();
+    const age = formData.get("age");
+    const state = formData.get("state");
+    const city = formData.get("city");
     const time = new Date().toLocaleString();
 
     if (!validateForm({ name, email, gender, hobbies, age, state, city })) return;
@@ -34,7 +34,6 @@ form.addEventListener("submit", (event) => {
     } else {
         arr.push(record);
     }
-
     updateTable();
     resetForm();
 });
@@ -63,15 +62,18 @@ Object.keys(states).forEach(state => {
 stateList.addEventListener('change', updateCity);
 
 function updateCity() {
-    const selectedState = this.value;
+    const selectedState = stateList.value;
     const cityList = document.getElementById("city");
     cityList.innerHTML = '<option value="">Select a city</option>';
-    states[selectedState].forEach(city => {
-        const option = document.createElement('option');
-        option.value = city.toLowerCase();
-        option.textContent = city.toUpperCase();
-        cityList.appendChild(option);
-    });
+
+    if (selectedState && states[selectedState]) {
+        states[selectedState].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.toLowerCase();
+            option.textContent = city.toUpperCase();
+            cityList.appendChild(option);
+        });
+    }
 };
 
 function validateForm({ name, email, gender, hobbies, age, state, city }) {
@@ -80,7 +82,7 @@ function validateForm({ name, email, gender, hobbies, age, state, city }) {
     if (!email || !validateEmail(email)) return showError("Please enter a valid Email.");
     if (!gender) return showError("Please select your Gender.");
     if (!hobbies) return showError("Please select at least one Hobby.");
-    if (!age) return showError("Please enter your Age.");
+    if (!age || age < 0 || age > 100) return showError("Please enter valid Age.");
     if (!state || !city) return showError("Please select your State and City.");
     return true;
 }
@@ -146,8 +148,21 @@ function forEdit(index) {
     for (const [key, value] of Object.entries(record)) {
         const input = document.querySelector(`[name="${key}"]`);
         if (input) {
-            if (input.type === "checkbox" || input.type === "radio") {
-                document.querySelector(`[name="${key}"][value="${value}"]`).checked = true;
+            if (input.type === "checkbox") {
+                const checkboxes = document.querySelectorAll(`[name="${key}"]`);
+                const selectedHobbies = value.split(", ");
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectedHobbies.includes(checkbox.value);
+                });
+            } else if (input.type === "radio") {
+                const radio = document.querySelector(`[name="${key}"][value="${value}"]`);
+                if (radio) radio.checked = true;
+            } else if (input.tagName.toLowerCase() === "select") {
+                input.value = value;
+                if (key === "state") {
+                    updateCity();
+                    document.querySelector('[name="city"]').value = record.city.toLowerCase();
+                }
             } else {
                 input.value = value;
             }
