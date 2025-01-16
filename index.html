@@ -3,6 +3,7 @@
 <head>
     <title>Demo Form</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 
@@ -32,11 +33,12 @@
 
             <tr>
                 <th><label for="hobbies">Hobbies:</label></th>
-                <td><input type="checkbox" id="travel" name="travel" value="Travel">
+                <td>
+                    <input type="checkbox" id="travel" name="hobbies" value="Travel">
                     <label for="travel"> Travelling</label><br>
-                    <input type="checkbox" id="reading" name="reading" value="Reading">
+                    <input type="checkbox" id="reading" name="hobbies" value="Reading">
                     <label for="reading"> Reading</label><br>
-                    <input type="checkbox" id="sports" name="sports" value="Sports">
+                    <input type="checkbox" id="sports" name="hobbies" value="Sports">
                     <label for="sports"> Sports</label><br>
                 </td>
             </tr>
@@ -49,7 +51,7 @@
             <tr>
                 <th><label for="state">State:</label></th>
                 <td>
-                    <select id="state">
+                    <select id="state" name="state">
                     </select>
                 </td>
             </tr>
@@ -57,7 +59,7 @@
             <tr>
                 <th><label for="city">City:</label></th>
                 <td>
-                    <select id="city">
+                    <select id="city" name="city">
                     </select>
                 </td>
             </tr>
@@ -65,7 +67,7 @@
             <tr>
                 <th><label for="submit">Action</label></th>
                 <td>
-                    <button type="button" id="save">Save</button>
+                    <button type="submit" id="save">Save</button>
                     <button type="button" id="cancel" style="display: none;">Cancel</button>
                 </td>
             </tr>
@@ -80,7 +82,6 @@
             <option value="desc">Name Descending</option>
         </select>
     </div>
-    
 
     <table style="margin-top: 15px;">
         <thead>
@@ -99,7 +100,6 @@
         <tbody id="dispdata">
         </tbody>
     </table>
-
 </body>
 
 </html>
