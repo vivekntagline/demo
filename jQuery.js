@@ -14,8 +14,10 @@ $(document).ready(function () {
     $form.on("submit", function (event) {
         event.preventDefault();
         const data = Object.fromEntries(new FormData(form));
-        data.hobbies = $("[name='hobbies']:checked").map((i, hobby) => hobby.value).get().join(", ");
-        data.time = new Date().toLocaleDateString();
+        data.hobbies = $("[name='hobbies']:checked").map(function() {
+            return this.value;
+        }).get().join(", ");
+        data.time = new Date().toLocaleString();
         if (!validateForm(data)) return;
         if (isEditing) arr[editingIndex] = data;
         else arr.push(data);
@@ -69,7 +71,7 @@ $(document).ready(function () {
 
     function resetForm() {
         $form[0].reset();
-        $save.text("Text");
+        $save.text("Save");
         $cancel.hide();
         isEditing = false;
         editingIndex = null;
@@ -88,17 +90,25 @@ $(document).ready(function () {
 
     $dispdata.on("click", ".edit", function () {
         const record = arr[$(this).data("index")];
-        Object.entries(record).forEach(([k, v]) => {
-            const $input = $(`[name="${k}"]`);
-            if ($input.is(":checkbox")) $input.each((i, hobby) => hobby.checked = v.split(", ").includes(hobby.value));
-            else if ($input.is(":radio")) $(`[name="${k}"][value="${v}"]`).prop("checked", true);
-            else if ($input.is("select")) $(`[name="${k}"]`).val(v);
-            else $input.val(v);
+        $form.find(":input").each(function () {
+            const $input = $(this);
+            const name = $input.attr("name");
+            const value = record[name];
+
+            if ($input.is(":checkbox")) {
+                $input.prop("checked", value.split(", ").includes($input.val()));
+            } else if ($input.is(":radio")) {
+                $input.prop("checked", $input.val() === value);
+            } else if ($input.is("select")) {
+                $input.val(value);
+            } else {
+                $input.val(value);
+            }
         });
         $save.text("Update");
         $cancel.show();
         isEditing = true;
-        editingIndex = $(this).data(index);
+        editingIndex = $(this).data("index");
     });
 
     $dispdata.on("click", ".delete", function () {
